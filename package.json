@@ -6,7 +6,7 @@
 	"dependencies": {
 		"asciiart-logo": "^0.2.6",
 		"colors": "^1.4.0",
-		"eris": "git://github.com/ServerStats-INC/eris.git#dev",
+		"eris": "git://github.com/ServerStats-INC/eris.git#serverstats",
 		"time-stamp": "^2.2.0"
 	},
 	"devDependencies": {
