@@ -1,4 +1,12 @@
+const { Console } = require('console');
 const colors = require('colors');
+const timestamp = require('time-stamp');
+
+const console = new Console({
+	stdout: process.stdout,
+	stderr: process.stderr,
+	colorMode: false
+});
 
 colors.setTheme({
     silly: 'rainbow',
@@ -12,7 +20,6 @@ colors.setTheme({
     debug: 'cyan',
     error: 'red'
 });
-var log = require('fancy-log');
 
 /**
  * 
@@ -31,10 +38,10 @@ class Logger {
      * @param {any} msg 
      * @memberof Logger
      */
-    log(source, msg) {
-        let message = colors.log(msg)
-        log(`${source} | ${message}`);
-    }
+	log(source, msg) {
+		let message = colors.log(msg);
+		console.log(`${createSource(source)} | ${message}`);
+	}
 
     /**
      * 
@@ -43,10 +50,10 @@ class Logger {
      * @param {any} msg 
      * @memberof Logger
      */
-    info(source, msg) {
-        let message = colors.info(msg)
-        log(`${source} | ${message}`);
-    }
+	info(source, msg) {
+		let message = colors.info(msg);
+		console.info(`${createSource(source)} | ${message}`);
+	}
 
     /**
      * 
@@ -55,10 +62,10 @@ class Logger {
      * @param {any} msg 
      * @memberof Logger
      */
-    warn(source, msg) {
-        let message = colors.warn(msg)
-        log(`${source} | ${message}`);
-    }
+	warn(source, msg) {
+		let message = colors.warn(msg);
+		console.warn(`${createSource(source)} | ${message}`);
+	}
 
     /**
      * 
@@ -67,10 +74,10 @@ class Logger {
      * @param {any} msg 
      * @memberof Logger
      */
-    error(source, msg) {
-        let message = colors.error(msg)
-        log(`${source} | ${message}`);
-    }
+	error(source, msg) {
+		let message = colors.error(msg);
+		console.error(`${createSource(source)} | ${message}`);
+	}
 
     /**
      * 
@@ -79,10 +86,10 @@ class Logger {
      * @param {any} msg 
      * @memberof Logger
      */
-    data(source, msg) {
-        let message = colors.data(msg)
-        log(`${source} | ${message}`);
-    }
+	data(source, msg) {
+		let message = colors.data(msg);
+		console.log(`${createSource(source)} | ${message}`);
+	}
 
     /**
      * 
@@ -91,10 +98,20 @@ class Logger {
      * @param {any} msg 
      * @memberof Logger
      */
-    debug(source, msg) {
-        let message = colors.debug(msg)
-        log(`${source} | ${message}`);
-    }
+	debug(source, msg) {
+		let message = colors.debug(msg);
+		console.debug(`${createSource(source)} | ${message}`);
+	}
 }
 
 module.exports = new Logger();
+
+/**
+* 
+* 
+* @param {any} source 
+* @returns {String} Date now and source with padding.
+*/
+const createSource = (source) => {
+	return `${timestamp(`YYYY/MM/DD HH:mm:ss`)} | ${source.padEnd(15)}`;
+};
