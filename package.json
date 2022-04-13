@@ -6,12 +6,8 @@
 	"dependencies": {
 		"asciiart-logo": "^0.2.6",
 		"colors": "^1.4.0",
-		"eris": "git://github.com/ServerStats-INC/eris.git#serverstats",
+		"eris": "https://github.com/ServerStats-INC/eris.git#serverstats",
 		"time-stamp": "^2.2.0"
-	},
-	"devDependencies": {
-		"tui-jsdoc-template": "^1.2.2",
-		"dotenv": "^8.2.0"
 	},
 	"scripts": {
 		"test": "node ./tests/test.js"
