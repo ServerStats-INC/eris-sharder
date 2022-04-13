@@ -5,8 +5,8 @@
   "main": "./src/index.js",
   "dependencies": {
     "asciiart-logo": "^0.2.6",
-		"colors": "^1.4.0",
-		"eris": "https://github.com/ServerStats-INC/eris.git#premium",
+    "colors": "^1.4.0",
+    "eris": "https://github.com/ServerStats-INC/eris.git#premium",
     "time-stamp": "^2.2.0"
   },
   "devDependencies": {
