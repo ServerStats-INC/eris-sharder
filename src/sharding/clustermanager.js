@@ -5,7 +5,9 @@ const logger = require("../utils/logger.js");
 const EventEmitter = require("events");
 const Eris = require("eris");
 const Queue = require("../utils/queue.js");
-const pkg = require("../../package.json")
+const ssvn = require("../../../../package.json").version || "Unknown";
+const svn = require("../../package.json").version || "Unknown";
+const evn = require("../../../eris/package.json").version || "Unknown";
 
 /**
  * 
@@ -439,15 +441,15 @@ class ClusterManager extends EventEmitter {
         const logo = require('asciiart-logo');
         console.log(
             logo({
-                name: this.name,
+                name: 'ServerStats',
                 font: 'Big',
-                lineChars: 15,
                 padding: 5,
-                margin: 2
+				margin: 3
             })
                 .emptyLine()
-                .right(`eris-sharder ${pkg.version}`)
-                .emptyLine()
+                .center(`Eris (V${evn})`)
+                .center(`Sharder (V${svn})`)
+                .center(`${this.name} (V${ssvn})`)
                 .render()
         );
     }
