@@ -60,11 +60,11 @@ class Cluster {
 
     spawn() {
         process.on('uncaughtException', (err) => {
-            process.send({ name: "error", msg: err.stack });
+            process.send({ name: "error", msg: `Uncaught exception at, reason:  ${err.stack}` });
         });
 
         process.on('unhandledRejection', (reason, p) => {
-            process.send({ name: "error", msg: `Unhandled rejection at: Promise  ${p} reason:  ${reason.stack}` });
+            process.send({ name: "error", msg: `Unhandled rejection at, promise: ${p} (reason:  ${reason.stack})` });
         });
 
 
@@ -227,11 +227,11 @@ class Cluster {
         });
 
         bot.on("warn", (message, id) => {
-            process.send({ name: "warn", msg: `Shard ${id} | ${message}` });
+            process.send({ name: "warn", msg: `Shard ${id} ${message}` });
         });
 
         bot.on("error", (error, id) => {
-            process.send({ name: "error", msg: `Shard ${id} | ${error.stack}` });
+            process.send({ name: "error", msg: `Shard ${id} ${error.message} ${!error.code ? '' : `(${error.code})`}` });
         });
 
         bot.once("ready", id => {
