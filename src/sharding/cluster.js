@@ -219,11 +219,11 @@ class Cluster {
         });
 
         bot.on("warn", (message, id) => {
-            process.send({ name: "warn", msg: `Shard ${id} | ${message}` });
+            process.send({ name: "warn", msg: `Shard ${id} ${message}` });
         });
 
         bot.on("error", (error, id) => {
-            process.send({ name: "error", msg: `Shard ${id} | ${error.message} ${!error.code ? '' : `(${error.code})`}` });
+            process.send({ name: "error", msg: `Shard ${id} ${error.message} ${!error.code ? '' : `(${error.code})`}` });
         });
 
         bot.once("ready", id => {
