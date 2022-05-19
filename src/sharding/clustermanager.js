@@ -49,8 +49,11 @@ class ClusterManager extends EventEmitter {
 		this.mainFile = mainFile;
 		this.name = options.name || 'Eris-Sharder';
 		this.guildsPerShard = options.guildsPerShard || 1300;
+		this.totalMessages = 0;
+		this.totalCommands = 0;
+		this.totalAutocomplete = 0;
 		this.totalCounterUpdates = 0;
-
+		this.totalFailedUpdates = 0;
 		this.clientOptions = options.clientOptions || {};
 
 		if (options.stats === true) {
@@ -58,7 +61,11 @@ class ClusterManager extends EventEmitter {
 				stats: {
 					guilds: 0,
 					totalRam: 0,
+					messages: 0,
+					commands: 0,
+					autocomplete: 0,
 					counterUpdates: 0,
+					failedUpdates: 0,
 					clusterUptime: 0,
 					botUptime: 0,
 					clusters: []
@@ -86,7 +93,11 @@ class ClusterManager extends EventEmitter {
 				this.stats.stats.totalUnavailableGuilds = 0;
 				this.stats.stats.totalRam = 0;
 				this.stats.stats.clusters = [];
+				this.stats.stats.totalMessages = 0;
+				this.stats.stats.totalCommands = 0;
+				this.stats.stats.totalAutocomplete = 0;
 				this.stats.stats.totalCounterUpdates = 0;
+				this.stats.stats.totalFailedUpdates = 0;
 				this.stats.clustersCounted = 0;
 
 				let clusters = Object.entries(master.workers);
@@ -229,8 +240,16 @@ class ClusterManager extends EventEmitter {
 						this.stats.stats.totalRam += message.stats.ram;
 						let ram = message.stats.ram / 1000000;
 						this.stats.stats.totalShards = this.shardCount;
+						this.totalMessages += message.stats.messages;
+						this.stats.stats.totalMessages = this.totalMessages;
+						this.totalCommands += message.stats.commands;
+						this.stats.stats.totalCommands = this.totalCommands;
+						this.totalAutocomplete += message.stats.autocomplete;
+						this.stats.stats.totalAutocomplete = this.totalAutocomplete;
 						this.totalCounterUpdates += message.stats.counterUpdates;
 						this.stats.stats.totalCounterUpdates = this.totalCounterUpdates;
+						this.totalFailedUpdates += message.stats.failedUpdates;
+						this.stats.stats.totalFailedUpdates = this.totalFailedUpdates;
 						this.stats.stats.clusters.push({
 							cluster: clusterID,
 							shards: message.stats.shards,
@@ -256,7 +275,11 @@ class ClusterManager extends EventEmitter {
 							this.emit('stats', {
 								totalGuilds: this.stats.stats.totalGuilds,
 								totalUnavailableGuilds: this.stats.stats.totalUnavailableGuilds,
+								totalMessages: this.stats.stats.totalMessages,
+								totalCommands: this.stats.stats.totalCommands,
+								totalAutocomplete: this.stats.stats.totalAutocomplete,
 								totalCounterUpdates: this.stats.stats.totalCounterUpdates,
+								totalFailedUpdates: this.stats.stats.totalFailedUpdates,
 								totalRam: this.stats.stats.totalRam / 1000000,
 								totalShards: this.stats.stats.totalShards,
 								clusters: clusters
