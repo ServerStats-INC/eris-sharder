@@ -28,11 +28,12 @@ class Cluster {
         this.concurrency = null;
         this.guilds = 0;
         this.unavailableGuilds = 0;
-        this.messages = 0;
-        this.commands = 0;
-        this.autocomplete = 0;
+        this.oldCommands = 0;
+        this.newCommands = 0;
+        this.sleepingServers = 0;
         this.counterUpdates = 0;
         this.failedUpdates = 0;
+        this.dispatchs = {};
 		this.clusterUptime = 0;
 		this.botUptime = 0;
 		this.shardsStats = [];
@@ -95,27 +96,24 @@ class Cluster {
                                 unavailableGuilds: this.unavailableGuilds,
 								ram: process.memoryUsage().rss,
 								shards: this.shards,
-                                messages: this.messages,
-                                commands: this.commands,
-                                autocomplete: this.autocomplete,
+                                oldCommands: this.oldCommands,
+                                newCommands: this.newCommands,
+                                sleepingServers: this.sleepingServers,
                                 counterUpdates: this.counterUpdates,
                                 failedUpdates: this.failedUpdates,
+                                dispatchs: this.dispatchs,
 								clusterUptime: this.clusterUptime,
 								botUptime: this.botUptime,
 								shardsStats: this.shardsStats
                             }
                         });
 
-                        if (this.messages > 0) {
-							this.messages = -1;
+                        if (this.oldCommands > 0) {
+							this.oldCommands = -1;
 						}
 
-                        if (this.commands > 0) {
-							this.commands = -1;
-						}
-
-                        if (this.autocomplete > 0) {
-							this.autocomplete = -1;
+                        if (this.newCommands > 0) {
+							this.newCommands = -1;
 						}
 
                         if (this.counterUpdates > 0) {
@@ -125,6 +123,10 @@ class Cluster {
                         if (this.failedUpdates > 0) {
 							this.failedUpdates = -1;
 						}
+
+                        if (Object.keys(this.dispatchs).length > 0) {
+                            this.dispatchs = {};
+                        }
 
                         break;
                     }
@@ -281,33 +283,37 @@ class Cluster {
 
     startStats(bot) {
         setInterval(() => {
-            if (this.messages === -1) {
-				bot.stats.messages = 0;
-			}
+            if(bot.stats) {
+                if (this.oldCommands === -1) {
+                    bot.stats.oldCommands = 0;
+                }
+    
+                if (this.newCommands === -1) {
+                    bot.stats.newCommands = 0;
+                }
+    
+                if (this.counterUpdates === -1) {
+                    bot.stats.counterUpdates = 0;
+                }
+    
+                if (this.failedUpdates === -1) {
+                    bot.stats.failedUpdates = 0;
+                }
 
-            if (this.commands === -1) {
-				bot.stats.commands = 0;
-			}
+                if (Object.keys(this.dispatchs).length === 0) {
+                    bot.stats.dispatchs = {}
+                }
 
-            if (this.autocomplete === -1) {
-				bot.stats.autocomplete = 0;
-			}
-
-            if (this.counterUpdates === -1) {
-				bot.stats.counterUpdates = 0;
-			}
-
-            if (this.failedUpdates === -1) {
-				bot.stats.failedUpdates = 0;
-			}
+                this.oldCommands = bot.stats.oldCommands;
+                this.newCommands = bot.stats.newCommands;
+                this.sleepingServers = bot.stats.sleepingServers;
+                this.counterUpdates = bot.stats.counterUpdates;
+                this.failedUpdates = bot.stats.failedUpdates;
+                this.dispatchs = bot.stats.dispatchs;
+            }
 
             this.guilds = bot.guilds.size;
             this.unavailableGuilds = bot.unavailableGuilds.size;
-            this.messages = !bot.stats ? 0 : bot.stats.messages;
-            this.commands = !bot.stats ? 0 : bot.stats.commands;
-            this.autocomplete = !bot.stats ? 0 : bot.stats.autocomplete;
-            this.counterUpdates = !bot.stats ? 0 : bot.stats.counterUpdates;
-            this.failedUpdates = !bot.stats ? 0 : bot.stats.failedUpdates;
 			this.clusterUptime = Math.round(process.uptime() * 1000);
 			this.botUptime = bot.uptime;
 			this.shardsStats = [];
