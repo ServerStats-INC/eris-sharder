@@ -51,6 +51,7 @@ class ClusterManager extends EventEmitter {
 		this.guildsPerShard = options.guildsPerShard || 1300;
 		this.totalOldCommands = 0;
 		this.totalNewCommands = 0;
+		this.totalQueuedServers = 0;
 		this.totalSleepingServers = 0;
 		this.totalCounterUpdates = 0;
 		this.totalFailedUpdates = 0;
@@ -64,6 +65,7 @@ class ClusterManager extends EventEmitter {
 					totalRam: 0,
 					oldCommands: 0,
 					newCommands: 0,
+					queuedServers: 0,
 					sleepingServers: 0,
 					counterUpdates: 0,
 					failedUpdates: 0,
@@ -97,6 +99,7 @@ class ClusterManager extends EventEmitter {
 				this.stats.stats.clusters = [];
 				this.stats.stats.totalOldCommands = 0;
 				this.stats.stats.totalNewCommands = 0;
+				this.stats.stats.totalQueuedServers = 0;
 				this.stats.stats.totalSleepingServers = 0;
 				this.stats.stats.totalCounterUpdates = 0;
 				this.stats.stats.totalFailedUpdates = 0;
@@ -247,6 +250,7 @@ class ClusterManager extends EventEmitter {
 						this.stats.stats.totalOldCommands = this.totalOldCommands;
 						this.totalNewCommands += message.stats.newCommands;
 						this.stats.stats.totalNewCommands = this.totalNewCommands;
+						this.stats.stats.totalQueuedServers += message.stats.queuedServers;
 						this.stats.stats.totalSleepingServers += message.stats.sleepingServers;
 						this.totalCounterUpdates += message.stats.counterUpdates;
 						this.stats.stats.totalCounterUpdates = this.totalCounterUpdates;
@@ -267,6 +271,7 @@ class ClusterManager extends EventEmitter {
 							guilds: message.stats.guilds,
 							ram: ram,
 							clusterUptime: message.stats.clusterUptime,
+							queuedServers: message.stats.queuedServers,
 							sleepingServers: message.stats.sleepingServers,
 							unavailableGuilds: message.stats.unavailableGuilds,
 							botUptime: message.stats.botUptime,
@@ -289,6 +294,7 @@ class ClusterManager extends EventEmitter {
 								totalUnavailableGuilds: this.stats.stats.totalUnavailableGuilds,
 								totalOldCommands: this.stats.stats.totalOldCommands,
 								totalNewCommands: this.stats.stats.totalNewCommands,
+								totalQueuedServers: this.stats.stats.totalQueuedServers,
 								totalSleepingServers: this.stats.stats.totalSleepingServers,
 								totalCounterUpdates: this.stats.stats.totalCounterUpdates,
 								totalFailedUpdates: this.stats.stats.totalFailedUpdates,

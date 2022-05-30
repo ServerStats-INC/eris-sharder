@@ -30,6 +30,7 @@ class Cluster {
         this.unavailableGuilds = 0;
         this.oldCommands = 0;
         this.newCommands = 0;
+        this.queuedServers = 0;
         this.sleepingServers = 0;
         this.counterUpdates = 0;
         this.failedUpdates = 0;
@@ -98,6 +99,7 @@ class Cluster {
 								shards: this.shards,
                                 oldCommands: this.oldCommands,
                                 newCommands: this.newCommands,
+                                queuedServers: this.queuedServers,
                                 sleepingServers: this.sleepingServers,
                                 counterUpdates: this.counterUpdates,
                                 failedUpdates: this.failedUpdates,
@@ -306,6 +308,7 @@ class Cluster {
 
                 this.oldCommands = bot.stats.oldCommands;
                 this.newCommands = bot.stats.newCommands;
+                this.queuedServers = bot.stats.queuedServers;
                 this.sleepingServers = bot.stats.sleepingServers;
                 this.counterUpdates = bot.stats.counterUpdates;
                 this.failedUpdates = bot.stats.failedUpdates;
