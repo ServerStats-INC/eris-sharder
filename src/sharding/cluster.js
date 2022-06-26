@@ -30,6 +30,7 @@ class Cluster {
         this.unavailableGuilds = 0;
         this.oldCommands = 0;
         this.newCommands = 0;
+        this.fetchedServers = 0;
         this.queuedServers = 0;
         this.sleepingServers = 0;
         this.counterUpdates = 0;
@@ -99,6 +100,7 @@ class Cluster {
 								shards: this.shards,
                                 oldCommands: this.oldCommands,
                                 newCommands: this.newCommands,
+                                fetchedServers: this.fetchedServers,
                                 queuedServers: this.queuedServers,
                                 sleepingServers: this.sleepingServers,
                                 counterUpdates: this.counterUpdates,
@@ -315,6 +317,7 @@ class Cluster {
                 this.dispatchs = bot.stats.dispatchs;
             }
 
+            this.fetchedServers = bot.guilds.filter(g => g.hasCachedMembers).length;
             this.guilds = bot.guilds.size;
             this.unavailableGuilds = bot.unavailableGuilds.size;
 			this.clusterUptime = Math.round(process.uptime() * 1000);
