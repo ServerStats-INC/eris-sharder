@@ -49,8 +49,7 @@ class ClusterManager extends EventEmitter {
 		this.mainFile = mainFile;
 		this.name = options.name || 'Eris-Sharder';
 		this.guildsPerShard = options.guildsPerShard || 1300;
-		this.totalOldCommands = 0;
-		this.totalNewCommands = 0;
+		this.totalSlashCommands = 0;
 		this.totalFetchedServers = 0;
 		this.totalQueuedServers = 0;
 		this.totalSleepingServers = 0;
@@ -64,8 +63,7 @@ class ClusterManager extends EventEmitter {
 				stats: {
 					guilds: 0,
 					totalRam: 0,
-					oldCommands: 0,
-					newCommands: 0,
+					slashCommands: 0,
 					fetchedServers: 0,
 					queuedServers: 0,
 					sleepingServers: 0,
@@ -99,8 +97,7 @@ class ClusterManager extends EventEmitter {
 				this.stats.stats.totalUnavailableGuilds = 0;
 				this.stats.stats.totalRam = 0;
 				this.stats.stats.clusters = [];
-				this.stats.stats.totalOldCommands = 0;
-				this.stats.stats.totalNewCommands = 0;
+				this.stats.stats.totalSlashCommands = 0;
 				this.stats.stats.totalFetchedServers = 0;
 				this.stats.stats.totalQueuedServers = 0;
 				this.stats.stats.totalSleepingServers = 0;
@@ -249,10 +246,8 @@ class ClusterManager extends EventEmitter {
 						this.stats.stats.totalRam += message.stats.ram;
 						let ram = message.stats.ram / 1000000;
 						this.stats.stats.totalShards = this.shardCount;
-						this.totalOldCommands += message.stats.oldCommands;
-						this.stats.stats.totalOldCommands = this.totalOldCommands;
-						this.totalNewCommands += message.stats.newCommands;
-						this.stats.stats.totalNewCommands = this.totalNewCommands;
+						this.totalSlashCommands += message.stats.slashCommands;
+						this.stats.stats.totalSlashCommands = this.totalSlashCommands;
 						this.stats.stats.totalFetchedServers += message.stats.fetchedServers;
 						this.stats.stats.totalQueuedServers += message.stats.queuedServers;
 						this.stats.stats.totalSleepingServers += message.stats.sleepingServers;
@@ -297,8 +292,7 @@ class ClusterManager extends EventEmitter {
 							this.emit('stats', {
 								totalGuilds: this.stats.stats.totalGuilds,
 								totalUnavailableGuilds: this.stats.stats.totalUnavailableGuilds,
-								totalOldCommands: this.stats.stats.totalOldCommands,
-								totalNewCommands: this.stats.stats.totalNewCommands,
+								totalSlashCommands: this.stats.stats.totalSlashCommands,
 								totalFetchedServers: this.stats.stats.totalFetchedServers,
 								totalQueuedServers: this.stats.stats.totalQueuedServers,
 								totalSleepingServers: this.stats.stats.totalSleepingServers,

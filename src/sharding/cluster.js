@@ -28,8 +28,7 @@ class Cluster {
         this.concurrency = null;
         this.guilds = 0;
         this.unavailableGuilds = 0;
-        this.oldCommands = 0;
-        this.newCommands = 0;
+        this.slashCommands = 0;
         this.fetchedServers = 0;
         this.queuedServers = 0;
         this.sleepingServers = 0;
@@ -98,8 +97,7 @@ class Cluster {
                                 unavailableGuilds: this.unavailableGuilds,
 								ram: process.memoryUsage().rss,
 								shards: this.shards,
-                                oldCommands: this.oldCommands,
-                                newCommands: this.newCommands,
+                                slashCommands: this.slashCommands,
                                 fetchedServers: this.fetchedServers,
                                 queuedServers: this.queuedServers,
                                 sleepingServers: this.sleepingServers,
@@ -112,12 +110,8 @@ class Cluster {
                             }
                         });
 
-                        if (this.oldCommands > 0) {
-							this.oldCommands = -1;
-						}
-
-                        if (this.newCommands > 0) {
-							this.newCommands = -1;
+                        if (this.slashCommands > 0) {
+							this.slashCommands = -1;
 						}
 
                         if (this.counterUpdates > 0) {
@@ -288,12 +282,8 @@ class Cluster {
     startStats(bot) {
         setInterval(() => {
             if(bot.stats) {
-                if (this.oldCommands === -1) {
-                    bot.stats.oldCommands = 0;
-                }
-    
-                if (this.newCommands === -1) {
-                    bot.stats.newCommands = 0;
+                if (this.slashCommands === -1) {
+                    bot.stats.slashCommands = 0;
                 }
     
                 if (this.counterUpdates === -1) {
@@ -308,8 +298,7 @@ class Cluster {
                     bot.stats.dispatchs = {}
                 }
 
-                this.oldCommands = bot.stats.oldCommands;
-                this.newCommands = bot.stats.newCommands;
+                this.slashCommands = bot.stats.slashCommands;
                 this.queuedServers = bot.stats.queuedServers;
                 this.sleepingServers = bot.stats.sleepingServers;
                 this.counterUpdates = bot.stats.counterUpdates;
