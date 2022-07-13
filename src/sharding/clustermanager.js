@@ -54,8 +54,10 @@ class ClusterManager extends EventEmitter {
 		this.totalQueuedServers = 0;
 		this.totalSleepingServers = 0;
 		this.totalCounterUpdates = 0;
+		this.totalEventMisses = 0;
 		this.totalFailedUpdates = 0;
 		this.allDispatchs = {};
+		this.clusterStats = {};
 		this.clientOptions = options.clientOptions || {};
 
 		if (options.stats === true) {
@@ -68,6 +70,7 @@ class ClusterManager extends EventEmitter {
 					queuedServers: 0,
 					sleepingServers: 0,
 					counterUpdates: 0,
+					eventMisses: 0,
 					failedUpdates: 0,
 					dispatchs: {},
 					clusterUptime: 0,
@@ -102,6 +105,7 @@ class ClusterManager extends EventEmitter {
 				this.stats.stats.totalQueuedServers = 0;
 				this.stats.stats.totalSleepingServers = 0;
 				this.stats.stats.totalCounterUpdates = 0;
+				this.stats.stats.totalEventMisses = 0;
 				this.stats.stats.totalFailedUpdates = 0;
 				this.stats.stats.allDispatchs = {};
 				this.stats.clustersCounted = 0;
@@ -253,6 +257,8 @@ class ClusterManager extends EventEmitter {
 						this.stats.stats.totalSleepingServers += message.stats.sleepingServers;
 						this.totalCounterUpdates += message.stats.counterUpdates;
 						this.stats.stats.totalCounterUpdates = this.totalCounterUpdates;
+						this.totalEventMisses += message.stats.eventMisses;
+						this.stats.stats.totalEventMisses = this.totalEventMisses;
 						this.totalFailedUpdates += message.stats.failedUpdates;
 						this.stats.stats.totalFailedUpdates = this.totalFailedUpdates;
 
@@ -263,12 +269,31 @@ class ClusterManager extends EventEmitter {
 								this.allDispatchs[d] += message.stats.dispatchs[d];
 							}
 						}
+
 						this.stats.stats.allDispatchs = this.allDispatchs;
+						if(!this.clusterStats[clusterID]) {
+							this.clusterStats[clusterID] = {
+								slashCommands: message.stats.slashCommands,
+								counterUpdates: message.stats.counterUpdates,
+								failedUpdates: message.stats.failedUpdates,
+								eventMisses: message.stats.eventMisses
+							};
+						} else {
+							this.clusterStats[clusterID].slashCommands += message.stats.slashCommands;
+							this.clusterStats[clusterID].counterUpdates += message.stats.counterUpdates;
+							this.clusterStats[clusterID].failedUpdates += message.stats.failedUpdates;
+							this.clusterStats[clusterID].eventMisses += message.stats.eventMisses;
+						}
+
 						this.stats.stats.clusters.push({
 							cluster: clusterID,
 							shards: message.stats.shards,
 							guilds: message.stats.guilds,
 							ram: ram,
+							slashCommands: this.clusterStats[clusterID].slashCommands,
+							counterUpdates: this.clusterStats[clusterID].counterUpdates,
+							failedUpdates: this.clusterStats[clusterID].failedUpdates,
+							eventMisses: this.clusterStats[clusterID].eventMisses,
 							clusterUptime: message.stats.clusterUptime,
 							fetchedServers: message.stats.fetchedServers,
 							queuedServers: message.stats.queuedServers,
@@ -297,6 +322,7 @@ class ClusterManager extends EventEmitter {
 								totalQueuedServers: this.stats.stats.totalQueuedServers,
 								totalSleepingServers: this.stats.stats.totalSleepingServers,
 								totalCounterUpdates: this.stats.stats.totalCounterUpdates,
+								totalEventMisses: this.stats.stats.totalEventMisses,
 								totalFailedUpdates: this.stats.stats.totalFailedUpdates,
 								allDispatchs: this.stats.stats.allDispatchs,
 								totalRam: this.stats.stats.totalRam / 1000000,

@@ -33,6 +33,7 @@ class Cluster {
         this.queuedServers = 0;
         this.sleepingServers = 0;
         this.counterUpdates = 0;
+        this.eventMisses = 0;
         this.failedUpdates = 0;
         this.dispatchs = {};
 		this.clusterUptime = 0;
@@ -102,6 +103,7 @@ class Cluster {
                                 queuedServers: this.queuedServers,
                                 sleepingServers: this.sleepingServers,
                                 counterUpdates: this.counterUpdates,
+                                eventMisses: this.eventMisses,
                                 failedUpdates: this.failedUpdates,
                                 dispatchs: this.dispatchs,
 								clusterUptime: this.clusterUptime,
@@ -116,6 +118,10 @@ class Cluster {
 
                         if (this.counterUpdates > 0) {
 							this.counterUpdates = -1;
+						}
+
+                        if (this.eventMisses > 0) {
+							this.eventMisses = -1;
 						}
 
                         if (this.failedUpdates > 0) {
@@ -289,6 +295,10 @@ class Cluster {
                 if (this.counterUpdates === -1) {
                     bot.stats.counterUpdates = 0;
                 }
+
+                if (this.eventMisses === -1) {
+                    bot.stats.eventMisses = 0;
+                }
     
                 if (this.failedUpdates === -1) {
                     bot.stats.failedUpdates = 0;
@@ -302,6 +312,7 @@ class Cluster {
                 this.queuedServers = bot.stats.queuedServers;
                 this.sleepingServers = bot.stats.sleepingServers;
                 this.counterUpdates = bot.stats.counterUpdates;
+                this.eventMisses = bot.stats.eventMisses;
                 this.failedUpdates = bot.stats.failedUpdates;
                 this.dispatchs = bot.stats.dispatchs;
             }
