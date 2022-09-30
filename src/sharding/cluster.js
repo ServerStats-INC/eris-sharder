@@ -24,14 +24,11 @@ class Cluster {
 		this.mainFile = null;
 		this.clusterID = 0;
         this.clusterCount = 0;
-        this.fastBoot = false;
-        this.concurrency = null;
         this.guilds = 0;
         this.unavailableGuilds = 0;
         this.slashCommands = 0;
         this.fetchedServers = 0;
         this.queuedServers = 0;
-        this.sleepingServers = 0;
         this.counterUpdates = 0;
         this.eventMisses = 0;
         this.failedUpdates = 0;
@@ -79,8 +76,6 @@ class Cluster {
                         this.mainFile = msg.file;
                         this.clusterID = msg.id;
                         this.clusterCount = msg.clusterCount;
-                        this.fastBoot = msg.fastBoot;
-                        this.concurrency = msg.concurrency;
                         this.shards = (this.lastShardID - this.firstShardID) + 1;
                         this.maxShards = msg.maxShards;
                         this.processName = msg.processName;
@@ -101,7 +96,6 @@ class Cluster {
                                 slashCommands: this.slashCommands,
                                 fetchedServers: this.fetchedServers,
                                 queuedServers: this.queuedServers,
-                                sleepingServers: this.sleepingServers,
                                 counterUpdates: this.counterUpdates,
                                 eventMisses: this.eventMisses,
                                 failedUpdates: this.failedUpdates,
@@ -230,15 +224,6 @@ class Cluster {
             process.send({ name: "log", msg: `Shard ${id} has been disconnected${!err ? '' : `, reason: ${err.message}`}` });
         });
 
-        if(this.fastBoot) {
-            bot.once("shardReady", id => {
-                if (this.clusterID <= this.concurrency) {
-                    process.send({ name: "warn", msg: `Cluster ${this.clusterID} | Fast boot has been trigger for this cluster` });
-                    process.send({ name: "shardsStarted" });
-                }
-            });
-        }
-
         bot.on("shardReady", id => {
             process.send({ name: "log", msg: `Shard ${id} is operational` });
         });
@@ -310,14 +295,13 @@ class Cluster {
 
                 this.slashCommands = bot.stats.slashCommands;
                 this.queuedServers = bot.stats.queuedServers;
-                this.sleepingServers = bot.stats.sleepingServers;
+                this.fetchedServers = bot.stats.fetchedServers;
                 this.counterUpdates = bot.stats.counterUpdates;
                 this.eventMisses = bot.stats.eventMisses;
                 this.failedUpdates = bot.stats.failedUpdates;
                 this.dispatchs = bot.stats.dispatchs;
             }
 
-            this.fetchedServers = bot.guilds.filter(g => g.hasCachedMembers).length;
             this.guilds = bot.guilds.size;
             this.unavailableGuilds = bot.unavailableGuilds.size;
 			this.clusterUptime = Math.round(process.uptime() * 1000);
@@ -327,7 +311,6 @@ class Cluster {
 				this.shardsStats.push({
 					id: shard.id,
                     ready: shard.ready,
-                    guilds: Object.keys(this.bot.guildShardMap).filter(k => this.bot.guildShardMap[k] === shard.id).length,
 					latency: shard.latency,
 					status: shard.status
 				});

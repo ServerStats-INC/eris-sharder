@@ -32,8 +32,6 @@ class ClusterManager extends EventEmitter {
 		this.firstShardID = options.firstShardID || 0;
 		this.lastShardID = options.lastShardID || this.shardCount - 1;
 		this.clusterCount = options.clusters || numCPUs;
-		this.fastBoot = options.fastBoot || false;
-		this.concurrency = options.concurrency || 4;
 		this.clusterTimeout = options.clusterTimeout * 1000 || 5000;
 
 		this.token = token || false;
@@ -52,7 +50,6 @@ class ClusterManager extends EventEmitter {
 		this.totalSlashCommands = 0;
 		this.totalFetchedServers = 0;
 		this.totalQueuedServers = 0;
-		this.totalSleepingServers = 0;
 		this.totalCounterUpdates = 0;
 		this.totalEventMisses = 0;
 		this.totalFailedUpdates = 0;
@@ -68,7 +65,6 @@ class ClusterManager extends EventEmitter {
 					slashCommands: 0,
 					fetchedServers: 0,
 					queuedServers: 0,
-					sleepingServers: 0,
 					counterUpdates: 0,
 					eventMisses: 0,
 					failedUpdates: 0,
@@ -103,7 +99,6 @@ class ClusterManager extends EventEmitter {
 				this.stats.stats.totalSlashCommands = 0;
 				this.stats.stats.totalFetchedServers = 0;
 				this.stats.stats.totalQueuedServers = 0;
-				this.stats.stats.totalSleepingServers = 0;
 				this.stats.stats.totalCounterUpdates = 0;
 				this.stats.stats.totalEventMisses = 0;
 				this.stats.stats.totalFailedUpdates = 0;
@@ -254,7 +249,6 @@ class ClusterManager extends EventEmitter {
 						this.stats.stats.totalSlashCommands = this.totalSlashCommands;
 						this.stats.stats.totalFetchedServers += message.stats.fetchedServers;
 						this.stats.stats.totalQueuedServers += message.stats.queuedServers;
-						this.stats.stats.totalSleepingServers += message.stats.sleepingServers;
 						this.totalCounterUpdates += message.stats.counterUpdates;
 						this.stats.stats.totalCounterUpdates = this.totalCounterUpdates;
 						this.totalEventMisses += message.stats.eventMisses;
@@ -297,7 +291,6 @@ class ClusterManager extends EventEmitter {
 							clusterUptime: message.stats.clusterUptime,
 							fetchedServers: message.stats.fetchedServers,
 							queuedServers: message.stats.queuedServers,
-							sleepingServers: message.stats.sleepingServers,
 							unavailableGuilds: message.stats.unavailableGuilds,
 							botUptime: message.stats.botUptime,
 							shardsStats: message.stats.shardsStats
@@ -320,7 +313,6 @@ class ClusterManager extends EventEmitter {
 								totalSlashCommands: this.stats.stats.totalSlashCommands,
 								totalFetchedServers: this.stats.stats.totalFetchedServers,
 								totalQueuedServers: this.stats.stats.totalQueuedServers,
-								totalSleepingServers: this.stats.stats.totalSleepingServers,
 								totalCounterUpdates: this.stats.stats.totalCounterUpdates,
 								totalEventMisses: this.stats.stats.totalEventMisses,
 								totalFailedUpdates: this.stats.stats.totalFailedUpdates,
@@ -469,8 +461,6 @@ class ClusterManager extends EventEmitter {
 					name: 'connect',
 					firstShardID: cluster.firstShardID,
 					lastShardID: cluster.lastShardID,
-					fastBoot: this.fastBoot,
-					concurrency: this.concurrency,
 					maxShards: this.shardCount,
 					token: this.token,
 					file: this.mainFile,
@@ -548,8 +538,6 @@ class ClusterManager extends EventEmitter {
 					shards: shards,
 					firstShardID: cluster.firstShardID,
 					lastShardID: cluster.lastShardID,
-					fastBoot: this.fastBoot,
-					concurrency: this.concurrency,
 					maxShards: this.shardCount,
 					token: this.token,
 					file: this.mainFile,
