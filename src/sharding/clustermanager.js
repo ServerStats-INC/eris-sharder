@@ -49,7 +49,8 @@ class ClusterManager extends EventEmitter {
 		this.guildsPerShard = options.guildsPerShard || 1300;
 		this.totalSlashCommands = 0;
 		this.totalFetchedServers = 0;
-		this.totalQueuedServers = 0;
+		this.totalNeedUpdateCount = 0;
+		this.totalHasUpdatedCount = 0;
 		this.totalCounterUpdates = 0;
 		this.totalEventMisses = 0;
 		this.totalFailedUpdates = 0;
@@ -64,7 +65,8 @@ class ClusterManager extends EventEmitter {
 					totalRam: 0,
 					slashCommands: 0,
 					fetchedServers: 0,
-					queuedServers: 0,
+					needUpdateCount: 0,
+					hasUpdatedCount: 0,
 					counterUpdates: 0,
 					eventMisses: 0,
 					failedUpdates: 0,
@@ -98,7 +100,8 @@ class ClusterManager extends EventEmitter {
 				this.stats.stats.clusters = [];
 				this.stats.stats.totalSlashCommands = 0;
 				this.stats.stats.totalFetchedServers = 0;
-				this.stats.stats.totalQueuedServers = 0;
+				this.stats.stats.totalNeedUpdateCount = 0;
+				this.stats.stats.totalHasUpdatedCount = 0;
 				this.stats.stats.totalCounterUpdates = 0;
 				this.stats.stats.totalEventMisses = 0;
 				this.stats.stats.totalFailedUpdates = 0;
@@ -248,7 +251,8 @@ class ClusterManager extends EventEmitter {
 						this.totalSlashCommands += message.stats.slashCommands;
 						this.stats.stats.totalSlashCommands = this.totalSlashCommands;
 						this.stats.stats.totalFetchedServers += message.stats.fetchedServers;
-						this.stats.stats.totalQueuedServers += message.stats.queuedServers;
+						this.stats.stats.totalNeedUpdateCount += message.stats.needUpdateCount;
+						this.stats.stats.totalHasUpdatedCount += message.stats.hasUpdatedCount;
 						this.totalCounterUpdates += message.stats.counterUpdates;
 						this.stats.stats.totalCounterUpdates = this.totalCounterUpdates;
 						this.totalEventMisses += message.stats.eventMisses;
@@ -290,7 +294,8 @@ class ClusterManager extends EventEmitter {
 							eventMisses: this.clusterStats[clusterID].eventMisses,
 							clusterUptime: message.stats.clusterUptime,
 							fetchedServers: message.stats.fetchedServers,
-							queuedServers: message.stats.queuedServers,
+							needUpdateCount: message.stats.needUpdateCount,
+							hasUpdatedCount: message.stats.hasUpdatedCount,
 							unavailableGuilds: message.stats.unavailableGuilds,
 							botUptime: message.stats.botUptime,
 							shardsStats: message.stats.shardsStats
@@ -312,7 +317,8 @@ class ClusterManager extends EventEmitter {
 								totalUnavailableGuilds: this.stats.stats.totalUnavailableGuilds,
 								totalSlashCommands: this.stats.stats.totalSlashCommands,
 								totalFetchedServers: this.stats.stats.totalFetchedServers,
-								totalQueuedServers: this.stats.stats.totalQueuedServers,
+								totalNeedUpdateCount: this.stats.stats.totalNeedUpdateCount,
+								totalHasUpdatedCount: this.stats.stats.totalHasUpdatedCount,
 								totalCounterUpdates: this.stats.stats.totalCounterUpdates,
 								totalEventMisses: this.stats.stats.totalEventMisses,
 								totalFailedUpdates: this.stats.stats.totalFailedUpdates,

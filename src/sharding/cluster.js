@@ -28,7 +28,8 @@ class Cluster {
         this.unavailableGuilds = 0;
         this.slashCommands = 0;
         this.fetchedServers = 0;
-        this.queuedServers = 0;
+        this.needUpdateCount = 0,
+		this.hasUpdatedCount = 0,
         this.counterUpdates = 0;
         this.eventMisses = 0;
         this.failedUpdates = 0;
@@ -95,7 +96,8 @@ class Cluster {
 								shards: this.shards,
                                 slashCommands: this.slashCommands,
                                 fetchedServers: this.fetchedServers,
-                                queuedServers: this.queuedServers,
+                                needUppdateCount: this.needUppdateCount,
+                                hasUpdatedCount: this.hasUpdatedCount,
                                 counterUpdates: this.counterUpdates,
                                 eventMisses: this.eventMisses,
                                 failedUpdates: this.failedUpdates,
@@ -294,7 +296,8 @@ class Cluster {
                 }
 
                 this.slashCommands = bot.stats.slashCommands;
-                this.queuedServers = bot.stats.queuedServers;
+                this.needUpdateCount = bot.stats.needUpdateCount;
+                this.hasUpdatedCount = bot.stats.hasUpdatedCount;
                 this.fetchedServers = bot.stats.fetchedServers;
                 this.counterUpdates = bot.stats.counterUpdates;
                 this.eventMisses = bot.stats.eventMisses;
