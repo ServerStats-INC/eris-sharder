@@ -96,7 +96,7 @@ class Cluster {
 								shards: this.shards,
                                 slashCommands: this.slashCommands,
                                 fetchedServers: this.fetchedServers,
-                                needUppdateCount: this.needUppdateCount,
+                                needUpdateCount: this.needUpdateCount,
                                 hasUpdatedCount: this.hasUpdatedCount,
                                 counterUpdates: this.counterUpdates,
                                 eventMisses: this.eventMisses,
