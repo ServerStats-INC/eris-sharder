@@ -24,18 +24,7 @@ class Cluster {
 		this.mainFile = null;
 		this.clusterID = 0;
         this.clusterCount = 0;
-        this.guilds = 0;
-        this.unavailableGuilds = 0;
-        this.slashCommands = 0;
-        this.fetchedServers = 0;
-        this.needUpdateCount = 0,
-		this.hasUpdatedCount = 0,
-        this.counterUpdates = 0;
-        this.eventMisses = 0;
-        this.failedUpdates = 0;
-        this.dispatchs = {};
-		this.clusterUptime = 0;
-		this.botUptime = 0;
+        this.botStats = {};
 		this.shardsStats = [];
 		this.app = null;
 		this.bot = null;
@@ -80,6 +69,7 @@ class Cluster {
                         this.shards = (this.lastShardID - this.firstShardID) + 1;
                         this.maxShards = msg.maxShards;
                         this.processName = msg.processName;
+                        this.recoverStats = msg.clientOptions.recoverStats;
 
                         if (this.shards < 1) return;
 
@@ -88,45 +78,18 @@ class Cluster {
                         break;
                     }
                     case "stats": {
+                        this.botStats.ram = {
+                            rss: process.memoryUsage().rss / 1000000,
+                            heapTotal: process.memoryUsage().heapTotal / 1000000,
+                            heapUsed: process.memoryUsage().heapUsed / 1000000
+                        }
+
                         process.send({
                             name: "stats", stats: {
-                                guilds: this.guilds,
-                                unavailableGuilds: this.unavailableGuilds,
-								ram: process.memoryUsage().rss,
-								shards: this.shards,
-                                slashCommands: this.slashCommands,
-                                fetchedServers: this.fetchedServers,
-                                needUpdateCount: this.needUpdateCount,
-                                hasUpdatedCount: this.hasUpdatedCount,
-                                counterUpdates: this.counterUpdates,
-                                eventMisses: this.eventMisses,
-                                failedUpdates: this.failedUpdates,
-                                dispatchs: this.dispatchs,
-								clusterUptime: this.clusterUptime,
-								botUptime: this.botUptime,
-								shardsStats: this.shardsStats
+                                botStats: this.botStats,
+                                shardsStats: this.shardsStats
                             }
                         });
-
-                        if (this.slashCommands > 0) {
-							this.slashCommands = -1;
-						}
-
-                        if (this.counterUpdates > 0) {
-							this.counterUpdates = -1;
-						}
-
-                        if (this.eventMisses > 0) {
-							this.eventMisses = -1;
-						}
-
-                        if (this.failedUpdates > 0) {
-							this.failedUpdates = -1;
-						}
-
-                        if (Object.keys(this.dispatchs).length > 0) {
-                            this.dispatchs = {};
-                        }
 
                         break;
                     }
@@ -273,51 +236,47 @@ class Cluster {
     }
 
     startStats(bot) {
+        if(!bot.stats) {
+            return;
+        }
+
         setInterval(() => {
-            if(bot.stats) {
-                if (this.slashCommands === -1) {
-                    bot.stats.slashCommands = 0;
-                }
-    
-                if (this.counterUpdates === -1) {
-                    bot.stats.counterUpdates = 0;
-                }
-
-                if (this.eventMisses === -1) {
-                    bot.stats.eventMisses = 0;
-                }
-    
-                if (this.failedUpdates === -1) {
-                    bot.stats.failedUpdates = 0;
-                }
-
-                if (Object.keys(this.dispatchs).length === 0) {
-                    bot.stats.dispatchs = {}
-                }
-
-                this.slashCommands = bot.stats.slashCommands;
-                this.needUpdateCount = bot.stats.needUpdateCount;
-                this.hasUpdatedCount = bot.stats.hasUpdatedCount;
-                this.fetchedServers = bot.stats.fetchedServers;
-                this.counterUpdates = bot.stats.counterUpdates;
-                this.eventMisses = bot.stats.eventMisses;
-                this.failedUpdates = bot.stats.failedUpdates;
-                this.dispatchs = bot.stats.dispatchs;
+            // Recover old stats if shard gets reloaded
+            if(bot.uptime < this.botStats.botUptime) {
+                this.recoverStats.forEach((s) => {
+                    if(typeof this.botStats[s] === "object") {
+                        for (const d in this.botStats[s]) {
+                            if(!bot.stats[s][d]) {
+                                bot.stats[s][d] = this.botStats[s][d];
+                            } else {
+                                if(!isNaN(bot.stats[s][d]) && !isNaN(this.botStats[s][d])) {
+                                    bot.stats[s][d] += this.botStats[s][d];
+                                }
+                            }
+                        }
+                    } else {
+                        if(!isNaN(bot.stats[s]) && !isNaN(this.botStats[s])) {
+                            bot.stats[s] += this.botStats[s];
+                        }
+                    }
+                })
             }
 
-            this.guilds = bot.guilds.size;
-            this.unavailableGuilds = bot.unavailableGuilds.size;
-			this.clusterUptime = Math.round(process.uptime() * 1000);
-			this.botUptime = bot.uptime;
-			this.shardsStats = [];
-			this.bot.shards.forEach((shard) => {
-				this.shardsStats.push({
+            this.botStats = bot.stats;
+            this.botStats.guilds = bot.guilds.size;
+            this.botStats.unavailableGuilds = bot.unavailableGuilds.size;
+            this.botStats.clusterUptime = Math.round(process.uptime() * 1000);
+            this.botStats.botUptime = bot.uptime;
+            
+            this.shardsStats = [];
+            this.bot.shards.forEach((shard) => {
+                this.shardsStats.push({
 					id: shard.id,
                     ready: shard.ready,
 					latency: shard.latency,
 					status: shard.status
 				});
-			});
+            });
         }, 1000 * 5);
     }
 }

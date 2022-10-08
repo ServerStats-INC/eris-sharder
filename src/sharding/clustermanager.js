@@ -47,32 +47,11 @@ class ClusterManager extends EventEmitter {
 		this.mainFile = mainFile;
 		this.name = options.name || 'Eris-Sharder';
 		this.guildsPerShard = options.guildsPerShard || 1300;
-		this.totalSlashCommands = 0;
-		this.totalFetchedServers = 0;
-		this.totalNeedUpdateCount = 0;
-		this.totalHasUpdatedCount = 0;
-		this.totalCounterUpdates = 0;
-		this.totalEventMisses = 0;
-		this.totalFailedUpdates = 0;
-		this.allDispatchs = {};
-		this.clusterStats = {};
 		this.clientOptions = options.clientOptions || {};
 
 		if (options.stats === true) {
 			this.stats = {
 				stats: {
-					guilds: 0,
-					totalRam: 0,
-					slashCommands: 0,
-					fetchedServers: 0,
-					needUpdateCount: 0,
-					hasUpdatedCount: 0,
-					counterUpdates: 0,
-					eventMisses: 0,
-					failedUpdates: 0,
-					dispatchs: {},
-					clusterUptime: 0,
-					botUptime: 0,
 					clusters: []
 				},
 				clustersCounted: 0
@@ -94,18 +73,8 @@ class ClusterManager extends EventEmitter {
 	startStats() {
 		if (this.statsInterval != null) {
 			setInterval(() => {
-				this.stats.stats.totalGuilds = 0;
-				this.stats.stats.totalUnavailableGuilds = 0;
-				this.stats.stats.totalRam = 0;
+				this.stats.stats.totalBotStats = {};
 				this.stats.stats.clusters = [];
-				this.stats.stats.totalSlashCommands = 0;
-				this.stats.stats.totalFetchedServers = 0;
-				this.stats.stats.totalNeedUpdateCount = 0;
-				this.stats.stats.totalHasUpdatedCount = 0;
-				this.stats.stats.totalCounterUpdates = 0;
-				this.stats.stats.totalEventMisses = 0;
-				this.stats.stats.totalFailedUpdates = 0;
-				this.stats.stats.allDispatchs = {};
 				this.stats.clustersCounted = 0;
 
 				let clusters = Object.entries(master.workers);
@@ -243,64 +212,31 @@ class ClusterManager extends EventEmitter {
 					case 'shard':
 						break;
 					case 'stats':
-						this.stats.stats.totalGuilds += message.stats.guilds;
-						this.stats.stats.totalUnavailableGuilds += message.stats.unavailableGuilds;
-						this.stats.stats.totalRam += message.stats.ram;
-						let ram = message.stats.ram / 1000000;
-						this.stats.stats.totalShards = this.shardCount;
-						this.totalSlashCommands += message.stats.slashCommands;
-						this.stats.stats.totalSlashCommands = this.totalSlashCommands;
-						this.stats.stats.totalFetchedServers += message.stats.fetchedServers;
-						this.stats.stats.totalNeedUpdateCount += message.stats.needUpdateCount;
-						this.stats.stats.totalHasUpdatedCount += message.stats.hasUpdatedCount;
-						this.totalCounterUpdates += message.stats.counterUpdates;
-						this.stats.stats.totalCounterUpdates = this.totalCounterUpdates;
-						this.totalEventMisses += message.stats.eventMisses;
-						this.stats.stats.totalEventMisses = this.totalEventMisses;
-						this.totalFailedUpdates += message.stats.failedUpdates;
-						this.stats.stats.totalFailedUpdates = this.totalFailedUpdates;
-
-						for (const d in message.stats.dispatchs) {
-							if(!this.allDispatchs[d]) {
-								this.allDispatchs[d] = message.stats.dispatchs[d];
+						let tempClusterStats = {cluster: clusterID};
+						for (const s in message.stats.botStats) {
+							if(typeof message.stats.botStats[s] === "object") {
+								if(!this.stats.stats.totalBotStats[s]) {
+									this.stats.stats.totalBotStats[s] = {};
+								}
+								for (const d in message.stats.botStats[s]) {
+									if(!this.stats.stats.totalBotStats[s][d]) {
+										this.stats.stats.totalBotStats[s][d] = message.stats.botStats[s][d];
+									} else {
+										this.stats.stats.totalBotStats[s][d] += message.stats.botStats[s][d];
+									}
+								}
 							} else {
-								this.allDispatchs[d] += message.stats.dispatchs[d];
+								if(!this.stats.stats.totalBotStats[s]) {
+									this.stats.stats.totalBotStats[s] = 0;
+								}
+								tempClusterStats[s] = message.stats.botStats[s];
+								this.stats.stats.totalBotStats[s] += message.stats.botStats[s];
 							}
 						}
 
-						this.stats.stats.allDispatchs = this.allDispatchs;
-						if(!this.clusterStats[clusterID]) {
-							this.clusterStats[clusterID] = {
-								slashCommands: message.stats.slashCommands,
-								counterUpdates: message.stats.counterUpdates,
-								failedUpdates: message.stats.failedUpdates,
-								eventMisses: message.stats.eventMisses
-							};
-						} else {
-							this.clusterStats[clusterID].slashCommands += message.stats.slashCommands;
-							this.clusterStats[clusterID].counterUpdates += message.stats.counterUpdates;
-							this.clusterStats[clusterID].failedUpdates += message.stats.failedUpdates;
-							this.clusterStats[clusterID].eventMisses += message.stats.eventMisses;
-						}
-
-						this.stats.stats.clusters.push({
-							cluster: clusterID,
-							shards: message.stats.shards,
-							guilds: message.stats.guilds,
-							ram: ram,
-							slashCommands: this.clusterStats[clusterID].slashCommands,
-							counterUpdates: this.clusterStats[clusterID].counterUpdates,
-							failedUpdates: this.clusterStats[clusterID].failedUpdates,
-							eventMisses: this.clusterStats[clusterID].eventMisses,
-							clusterUptime: message.stats.clusterUptime,
-							fetchedServers: message.stats.fetchedServers,
-							needUpdateCount: message.stats.needUpdateCount,
-							hasUpdatedCount: message.stats.hasUpdatedCount,
-							unavailableGuilds: message.stats.unavailableGuilds,
-							botUptime: message.stats.botUptime,
-							shardsStats: message.stats.shardsStats
-						});
-
+						tempClusterStats.ram = message.stats.botStats["ram"];
+						tempClusterStats.shardsStats = message.stats.shardsStats;
+						this.stats.stats.clusters.push(tempClusterStats);
 						this.stats.clustersCounted += 1;
 
 						if (this.stats.clustersCounted === this.clusters.size) {
@@ -310,23 +246,10 @@ class ClusterManager extends EventEmitter {
 								return 0;
 							}
 
-							let clusters = this.stats.stats.clusters.sort(compare);
+							const clusters = this.stats.stats.clusters.sort(compare);
+							this.stats.stats.totalBotStats.clusters = clusters
 
-							this.emit('stats', {
-								totalGuilds: this.stats.stats.totalGuilds,
-								totalUnavailableGuilds: this.stats.stats.totalUnavailableGuilds,
-								totalSlashCommands: this.stats.stats.totalSlashCommands,
-								totalFetchedServers: this.stats.stats.totalFetchedServers,
-								totalNeedUpdateCount: this.stats.stats.totalNeedUpdateCount,
-								totalHasUpdatedCount: this.stats.stats.totalHasUpdatedCount,
-								totalCounterUpdates: this.stats.stats.totalCounterUpdates,
-								totalEventMisses: this.stats.stats.totalEventMisses,
-								totalFailedUpdates: this.stats.stats.totalFailedUpdates,
-								allDispatchs: this.stats.stats.allDispatchs,
-								totalRam: this.stats.stats.totalRam / 1000000,
-								totalShards: this.stats.stats.totalShards,
-								clusters: clusters
-							});
+							this.emit('stats', this.stats.stats.totalBotStats);
 						}
 						break;
 
