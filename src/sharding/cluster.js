@@ -69,7 +69,7 @@ class Cluster {
                         this.shards = (this.lastShardID - this.firstShardID) + 1;
                         this.maxShards = msg.maxShards;
                         this.processName = msg.processName;
-                        this.recoverStats = msg.clientOptions.recoverStats;
+                        this.recoverStats = [];
 
                         if (this.shards < 1) return;
 
@@ -240,6 +240,7 @@ class Cluster {
             return;
         }
 
+	this.recoverStats = Object.keys(bot.stats);
         setInterval(() => {
             // Recover old stats if shard gets reloaded
             if(bot.uptime < this.botStats.botUptime) {
