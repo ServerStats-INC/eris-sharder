@@ -4,7 +4,7 @@
 	"description": "A sharder for the discord eris library",
 	"main": "./src/index.js",
 	"dependencies": {
-		"asciiart-logo": "^0.2.6",
+		"asciiart-logo": "^0.2.7",
 		"colors": "^1.4.0",
 		"eris": "https://github.com/ServerStats-INC/eris.git#serverstats",
 		"time-stamp": "^2.2.0"
