@@ -275,6 +275,7 @@ class Cluster {
 					id: shard.id,
                     ready: shard.ready,
 					latency: shard.latency,
+                    buckets: shard.commandTokens,
 					status: shard.status
 				});
             });
