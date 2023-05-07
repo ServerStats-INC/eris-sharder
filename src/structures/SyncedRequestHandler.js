@@ -17,7 +17,7 @@ class SyncedRequestHandler {
             process.send({ name: 'apiRequest', requestID, method, url, auth, body, file, _route, short });
 
             let timeout = setTimeout(() => {
-                reject(new Error(`Request timed out (>${this.timeout}ms) on ${method} ${url}`));
+                reject(new Error(`Request timed out in SRH (>${this.timeout}ms) on ${method} ${url}`));
 
                 this.ipc.unregister(`apiResponse.${requestID}`);
             }, this.timeout);
