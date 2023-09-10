@@ -300,9 +300,7 @@ class ClusterManager extends EventEmitter {
                         this.callbacks.set(message.memberID, clusterID);
                         break;
                     case "fetchReturn":
-                        console.log(message);
                         let callback = this.callbacks.get(message.value.id);
-
                         let cluster = this.clusters.get(callback);
 
                         if (cluster) {
