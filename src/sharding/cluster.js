@@ -231,7 +231,17 @@ class Cluster {
         });
 
         bot.on("error", (error, id) => {
-            process.send({ name: "error", msg: `Shard ${id} ${error.message} ${!error.code ? '' : `(${error.code})`}` });
+            if(error.message.includes("reset by peer")) {
+                process.send({ name: "warn", msg: `Shard ${id} | Reset by peer, not even an error LOL` });
+            } else if (error.message.includes("1001:")) {
+                process.send({ name: "error", msg: `Shard ${id} | Stupid 1001 error that doesn't do anything special` });
+            } else if (error.message.includes("previous heartbeat")) {
+                process.send({ name: "error", msg: `Shard ${id} | The previous heartbeat failed, this is bad` });
+            } else if (error.message.includes("was ratelimited")) {
+                process.send({ name: "error", msg: `Shard ${id} | Bot got global ratelimited, this is really bad` });
+            } else {
+                process.send({ name: "error", msg: `Shard ${id} | ${error.message}, ${error.stack}` });
+            }
         });
 
         bot.once("ready", id => {
