@@ -214,7 +214,11 @@ class ClusterManager extends EventEmitter {
 					case 'stats':
 						let tempClusterStats = {cluster: clusterID};
 						for (const s in message.stats.botStats) {
-							if(["botUptime", "clusterUptime"].includes(s)) continue;
+							if(["guilds", "clusterUptime", "botUptime", "unavailableGuilds"].includes(s)) {
+								tempClusterStats[s] = message.stats.botStats[s]; // Add stat to cluster stats
+							}
+
+							if(["clusterUptime", "botUptime"].includes(s)) continue; // Prevents stat from being added to total/global stat
 							if(typeof message.stats.botStats[s] === "object") {
 								if(!this.stats.stats.botStats[s]) {
 									this.stats.stats.botStats[s] = {};
@@ -230,7 +234,6 @@ class ClusterManager extends EventEmitter {
 								if(!this.stats.stats.botStats[s]) {
 									this.stats.stats.botStats[s] = 0;
 								}
-								tempClusterStats[s] = message.stats.botStats[s];
 								this.stats.stats.botStats[s] += message.stats.botStats[s];
 							}
 						}
