@@ -24,8 +24,6 @@ class Cluster {
 		this.mainFile = null;
 		this.clusterID = 0;
         this.clusterCount = 0;
-        this.botStats = {};
-		this.shardsStats = [];
 		this.app = null;
 		this.bot = null;
 
@@ -69,7 +67,6 @@ class Cluster {
                         this.shards = (this.lastShardID - this.firstShardID) + 1;
                         this.maxShards = msg.maxShards;
                         this.processName = msg.processName;
-                        this.recoverStats = [];
 
                         if (this.shards < 1) return;
 
@@ -78,18 +75,32 @@ class Cluster {
                         break;
                     }
                     case "stats": {
-                        this.botStats.ram = {
-                            rss: process.memoryUsage().rss / 1000000,
-                            heapTotal: process.memoryUsage().heapTotal / 1000000,
-                            heapUsed: process.memoryUsage().heapUsed / 1000000
+                        if (!this.bot) return;
+                        let botStats = this.bot.stats;
+                        botStats.guilds = this.bot.guilds.size;
+                        botStats.clusterUptime = Math.round(process.uptime() * 1000);
+                        botStats.botUptime = this.bot.uptime;
+                        if (this.bot.unavailableGuilds.size > 0) {
+                            botStats.unavailableGuilds = this.bot.unavailableGuilds.size;
                         }
-
-                        process.send({
-                            name: "stats", stats: {
-                                botStats: this.botStats,
-                                shardsStats: this.shardsStats
-                            }
+                        botStats.ram = {
+                            rss: Math.round(process.memoryUsage().rss / 1000000),
+                            heapTotal: Math.round(process.memoryUsage().heapTotal / 1000000),
+                            heapUsed: Math.round(process.memoryUsage().heapUsed / 1000000)
+                        }
+            
+                        let shardsStats = [];
+                        this.bot.shards.forEach((shard) => {
+                            shardsStats.push({
+                                id: shard.id,
+                                ready: shard.ready,
+                                latency: shard.latency,
+                                buckets: shard.commandTokens,
+                                status: shard.status
+                            });
                         });
+
+                        process.send({ name: "stats", stats: { botStats, shardsStats } });
 
                         break;
                     }
@@ -207,13 +218,10 @@ class Cluster {
 
         bot.once("ready", id => {
             this.loadCode(bot);
-
-            this.startStats(bot);
         });
 
         bot.on("ready", id => {
             process.send({ name: "log", msg: `Shards ${this.firstShardID} - ${this.lastShardID} are now ready` });
-
             process.send({ name: "shardsStarted" });
         });
 
@@ -224,7 +232,6 @@ class Cluster {
         let rootPath = process.cwd();
         rootPath = rootPath.replace(`\\`, "/");
 
-
         let path = `${rootPath}${this.mainFile}`;
         let app = require(path);
         if (app.prototype instanceof Base) {
@@ -233,53 +240,6 @@ class Cluster {
         } else {
             console.error("Your code has not been loaded! This is due to it not extending the Base class. Please extend the Base class!");
         }
-    }
-
-    startStats(bot) {
-        if(!bot.stats) {
-            return;
-        }
-
-	this.recoverStats = Object.keys(bot.stats);
-        setInterval(() => {
-            // Recover old stats if shard gets reloaded
-            if(bot.uptime < this.botStats.botUptime) {
-                this.recoverStats.forEach((s) => {
-                    if(typeof this.botStats[s] === "object") {
-                        for (const d in this.botStats[s]) {
-                            if(!bot.stats[s][d]) {
-                                bot.stats[s][d] = this.botStats[s][d];
-                            } else {
-                                if(!isNaN(bot.stats[s][d]) && !isNaN(this.botStats[s][d])) {
-                                    bot.stats[s][d] += this.botStats[s][d];
-                                }
-                            }
-                        }
-                    } else {
-                        if(!isNaN(bot.stats[s]) && !isNaN(this.botStats[s])) {
-                            bot.stats[s] += this.botStats[s];
-                        }
-                    }
-                })
-            }
-
-            this.botStats = bot.stats;
-            this.botStats.guilds = bot.guilds.size;
-            this.botStats.unavailableGuilds = bot.unavailableGuilds.size;
-            this.botStats.clusterUptime = Math.round(process.uptime() * 1000);
-            this.botStats.botUptime = bot.uptime;
-            
-            this.shardsStats = [];
-            this.bot.shards.forEach((shard) => {
-                this.shardsStats.push({
-					id: shard.id,
-                    ready: shard.ready,
-					latency: shard.latency,
-                    buckets: shard.commandTokens,
-					status: shard.status
-				});
-            });
-        }, 1000 * 5);
     }
 }
 

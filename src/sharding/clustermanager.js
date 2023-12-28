@@ -73,7 +73,7 @@ class ClusterManager extends EventEmitter {
 	startStats() {
 		if (this.statsInterval != null) {
 			setInterval(() => {
-				this.stats.stats.totalBotStats = {};
+				this.stats.stats.botStats = {};
 				this.stats.stats.clusters = [];
 				this.stats.clustersCounted = 0;
 
@@ -214,23 +214,24 @@ class ClusterManager extends EventEmitter {
 					case 'stats':
 						let tempClusterStats = {cluster: clusterID};
 						for (const s in message.stats.botStats) {
+							if(["botUptime", "clusterUptime"].includes(s)) continue;
 							if(typeof message.stats.botStats[s] === "object") {
-								if(!this.stats.stats.totalBotStats[s]) {
-									this.stats.stats.totalBotStats[s] = {};
+								if(!this.stats.stats.botStats[s]) {
+									this.stats.stats.botStats[s] = {};
 								}
 								for (const d in message.stats.botStats[s]) {
-									if(!this.stats.stats.totalBotStats[s][d]) {
-										this.stats.stats.totalBotStats[s][d] = message.stats.botStats[s][d];
+									if(!this.stats.stats.botStats[s][d]) {
+										this.stats.stats.botStats[s][d] = message.stats.botStats[s][d];
 									} else {
-										this.stats.stats.totalBotStats[s][d] += message.stats.botStats[s][d];
+										this.stats.stats.botStats[s][d] += message.stats.botStats[s][d];
 									}
 								}
 							} else {
-								if(!this.stats.stats.totalBotStats[s]) {
-									this.stats.stats.totalBotStats[s] = 0;
+								if(!this.stats.stats.botStats[s]) {
+									this.stats.stats.botStats[s] = 0;
 								}
 								tempClusterStats[s] = message.stats.botStats[s];
-								this.stats.stats.totalBotStats[s] += message.stats.botStats[s];
+								this.stats.stats.botStats[s] += message.stats.botStats[s];
 							}
 						}
 
@@ -247,9 +248,9 @@ class ClusterManager extends EventEmitter {
 							}
 
 							const clusters = this.stats.stats.clusters.sort(compare);
-							this.stats.stats.totalBotStats.clusters = clusters
+							this.stats.stats.botStats.clusters = clusters
 
-							this.emit('stats', this.stats.stats.totalBotStats);
+							this.emit('stats', this.stats.stats.botStats);
 						}
 						break;
 
@@ -271,9 +272,7 @@ class ClusterManager extends EventEmitter {
 						break;
 					case 'fetchReturn':
 						let callback = this.callbacks.get(message.value.id);
-
 						let cluster = this.clusters.get(callback);
-
 						if (cluster) {
 							master.workers[cluster.workerID].send({
 								name: 'fetchReturn',
