@@ -80,8 +80,7 @@ class Cluster {
                         this.bot.stats = {};
 
                         botStats.guilds = this.bot.guilds.size;
-                        botStats.clusterUptime = Math.round(process.uptime() * 1000);
-                        botStats.botUptime = this.bot.uptime;
+                        botStats.uptime = Math.round(process.uptime() * 1000);
                         if (this.bot.unavailableGuilds.size > 0) {
                             botStats.unavailableGuilds = this.bot.unavailableGuilds.size;
                         }
