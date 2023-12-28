@@ -85,10 +85,12 @@ class Cluster {
                         if (this.bot.unavailableGuilds.size > 0) {
                             botStats.unavailableGuilds = this.bot.unavailableGuilds.size;
                         }
+
+                        const { rss, heapTotal, heapUsed } = process.memoryUsage();
                         botStats.ram = {
-                            rss: Math.round(process.memoryUsage().rss / 1000000),
-                            heapTotal: Math.round(process.memoryUsage().heapTotal / 1000000),
-                            heapUsed: Math.round(process.memoryUsage().heapUsed / 1000000)
+                            rss: Math.round(rss / 1000000),
+                            heapTotal: Math.round(heapTotal / 1000000),
+                            heapUsed: Math.round(heapUsed / 1000000)
                         }
             
                         let shardsStats = [];
