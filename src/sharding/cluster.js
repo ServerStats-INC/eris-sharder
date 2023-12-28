@@ -77,6 +77,8 @@ class Cluster {
                     case "stats": {
                         if (!this.bot) return;
                         let botStats = this.bot.stats;
+                        this.bot.stats = {};
+
                         botStats.guilds = this.bot.guilds.size;
                         botStats.clusterUptime = Math.round(process.uptime() * 1000);
                         botStats.botUptime = this.bot.uptime;

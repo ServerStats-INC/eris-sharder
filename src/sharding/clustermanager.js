@@ -235,6 +235,9 @@ class ClusterManager extends EventEmitter {
 							}
 						}
 
+						if (message.stats.botStats.commandTypes) {
+                            tempClusterStats.commandTypes = message.stats.botStats.commandTypes;
+                        }
 						tempClusterStats.ram = message.stats.botStats["ram"];
 						tempClusterStats.shardsStats = message.stats.shardsStats;
 						this.stats.stats.clusters.push(tempClusterStats);
