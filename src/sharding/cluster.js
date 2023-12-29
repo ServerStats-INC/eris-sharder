@@ -96,7 +96,6 @@ class Cluster {
                         this.bot.shards.forEach((shard) => {
                             shardsStats.push({
                                 id: shard.id,
-                                ready: shard.ready,
                                 latency: shard.latency,
                                 buckets: shard.commandTokens,
                                 status: shard.status
