@@ -199,10 +199,6 @@ class Cluster {
             timeout: this.bot.options.requestTimeout
         });
 
-        bot.on("connect", id => {
-            process.send({ name: "log", msg: `Shard ${id} established a connection` });
-        });
-
         bot.on("shardDisconnect", (err, id) => {
             const closeCode = err ? err.code : "noCode";
             if(!this.closeCodes) this.closeCodes = {};
