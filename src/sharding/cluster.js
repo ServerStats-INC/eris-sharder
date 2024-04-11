@@ -84,6 +84,11 @@ class Cluster {
                         if (this.bot.unavailableGuilds.size > 0) {
                             botStats.unavailableGuilds = this.bot.unavailableGuilds.size;
                         }
+                        
+                        if(this.closeCodes) {
+                            botStats.closeCodes = this.closeCodes;
+                            this.closeCodes = undefined;
+                        }
 
                         const { rss, heapTotal, heapUsed } = process.memoryUsage();
                         botStats.ram = {
@@ -199,6 +204,14 @@ class Cluster {
         });
 
         bot.on("shardDisconnect", (err, id) => {
+            const closeCode = err ? err.code : "noCode";
+            if(!this.closeCodes) this.closeCodes = {};
+            if(!this.closeCodes[closeCode]) {
+                this.closeCodes[closeCode] = 1;
+            } else {
+                this.closeCodes[closeCode]++;
+            }
+
             process.send({ name: "log", msg: `Shard ${id} has been disconnected${!err ? '' : `, reason: ${err.message}`}` });
         });
 
