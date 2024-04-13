@@ -75,7 +75,7 @@ class Cluster {
                         break;
                     }
                     case "stats": {
-                        if (!this.bot) return;
+                        if (!this.bot || !this.bot.stats) return;
                         let botStats = this.bot.stats;
                         this.bot.stats = {};
 
