@@ -200,7 +200,7 @@ class Cluster {
         });
 
         bot.on("shardDisconnect", (err, id) => {
-            const closeCode = err ? err.code : "noCode";
+            const closeCode = err && err.code ? err.code : "noCode";
             if(!this.closeCodes) this.closeCodes = {};
             if(!this.closeCodes[closeCode]) {
                 this.closeCodes[closeCode] = 1;
@@ -208,7 +208,7 @@ class Cluster {
                 this.closeCodes[closeCode]++;
             }
 
-            process.send({ name: "log", msg: `Shard ${id} has been disconnected${!err ? '' : `, reason: ${err.message}`}` });
+            process.send({ name: "log", msg: `Shard ${id} has been disconnected${!err ? '' : `, ${!err.message ? `code: ${err.code}` : `reason: ${err.message}` }`}` });
         });
 
         bot.on("shardReady", id => {
