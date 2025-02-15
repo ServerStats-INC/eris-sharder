@@ -160,6 +160,16 @@ class Cluster {
 
                         break;
                     }
+                    case "fetchCheck": {
+                        if (!this.bot) return;
+                        let id = msg.value;
+                        let check = this.bot.ipcOutput.checkInfo(id);
+                        if (check) {
+                            process.send({ name: "fetchReturn", value: check });
+                        }
+
+                        break;
+                    }
                     case "fetchReturn":
                         this.ipc.emit(msg.id, msg.value);
                         break;

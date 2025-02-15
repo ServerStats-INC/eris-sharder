@@ -81,6 +81,19 @@ class IPC extends EventEmitter {
             this.on(memberID, callback);
         });
     }
+
+    async fetchCheck(id) {
+        process.send({ name: "fetchCheck", id });
+
+        return new Promise((resolve, reject) => {
+            const callback = (check) => {
+                this.removeListener(id, callback);
+                resolve(check);
+            };
+
+            this.on(id, callback);
+        });
+    }
 }
 
 module.exports = IPC;

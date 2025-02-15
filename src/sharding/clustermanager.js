@@ -272,9 +272,14 @@ class ClusterManager extends EventEmitter {
 						this.fetchInfo(0, 'fetchMember', [ message.guildID, message.memberID ]);
 						this.callbacks.set(message.memberID, clusterID);
 						break;
+					case 'fetchCheck':
+						this.fetchInfo(0, 'fetchCheck', message.id);
+						this.callbacks.set(message.id, clusterID);
+						break;
 					case 'fetchReturn':
 						let callback = this.callbacks.get(message.value.id);
 						let cluster = this.clusters.get(callback);
+
 						if (cluster) {
 							master.workers[cluster.workerID].send({
 								name: 'fetchReturn',
