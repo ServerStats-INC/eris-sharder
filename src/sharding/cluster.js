@@ -115,59 +115,36 @@ class Cluster {
                         if (!this.bot) return;
                         let id = msg.value;
                         let user = this.bot.users.get(id);
-                        if (user) {
-                            process.send({ name: "fetchReturn", value: user });
-                        }
-
+                        process.send({ name: "fetchReturn", value: user || null });
                         break;
                     }
                     case "fetchChannel": {
                         if (!this.bot) return;
                         let id = msg.value;
                         let channel = this.bot.getChannel(id);
-                        if (channel) {
-                            channel = channel.toJSON();
-                            return process.send({ name: "fetchReturn", value: channel });
-                        }
-
+                        process.send({ name: "fetchReturn", value: channel ? channel.toJSON() : null });
                         break;
                     }
                     case "fetchGuild": {
                         if (!this.bot) return;
                         let id = msg.value;
                         let guild = this.bot.guilds.get(id);
-                        if (guild) {
-                            guild = guild.toJSON();
-                            process.send({ name: "fetchReturn", value: guild });
-                        }
-
+                        process.send({ name: "fetchReturn", value: guild ? guild.toJSON() : null });
                         break;
                     }
                     case "fetchMember": {
                         if (!this.bot) return;
                         let [guildID, memberID] = msg.value;
-
                         let guild = this.bot.guilds.get(guildID);
-
-                        if (guild) {
-                            let member = guild.members.get(memberID);
-
-                            if (member) {
-                                member = member.toJSON();
-                                process.send({ name: "fetchReturn", value: member });
-                            }
-                        }
-
+                        let member = guild ? guild.members.get(memberID) : null;
+                        process.send({ name: "fetchReturn", value: member ? member.toJSON() : null });
                         break;
                     }
                     case "fetchCheck": {
                         if (!this.bot) return;
                         let id = msg.value;
                         let check = this.bot.ipcOutput.checkInfo(id);
-                        if (check) {
-                            process.send({ name: "fetchReturn", value: check });
-                        }
-
+                        process.send({ name: "fetchReturn", value: check || null });
                         break;
                     }
                     case "fetchReturn":

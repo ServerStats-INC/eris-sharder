@@ -258,36 +258,21 @@ class ClusterManager extends EventEmitter {
 
 					case 'fetchUser':
 						this.fetchInfo(0, 'fetchUser', message.id);
-						this.callbacks.set(message.id, clusterID);
 						break;
 					case 'fetchGuild':
 						this.fetchInfo(0, 'fetchGuild', message.id);
-						this.callbacks.set(message.id, clusterID);
 						break;
 					case 'fetchChannel':
 						this.fetchInfo(0, 'fetchChannel', message.id);
-						this.callbacks.set(message.id, clusterID);
 						break;
 					case 'fetchMember':
 						this.fetchInfo(0, 'fetchMember', [ message.guildID, message.memberID ]);
-						this.callbacks.set(message.memberID, clusterID);
 						break;
 					case 'fetchCheck':
 						this.fetchInfo(0, 'fetchCheck', message.id);
-						this.callbacks.set(message.id, clusterID);
 						break;
 					case 'fetchReturn':
-						let callback = this.callbacks.get(message.value.id);
-						let cluster = this.clusters.get(callback);
-
-						if (cluster) {
-							master.workers[cluster.workerID].send({
-								name: 'fetchReturn',
-								id: message.value.id,
-								value: message.value
-							});
-							this.callbacks.delete(message.value.id);
-						}
+						this.fetchReturn(message.value.id, message.value);
 						break;
 					case 'broadcast':
 						this.broadcast(0, message.msg);
@@ -507,10 +492,64 @@ class ClusterManager extends EventEmitter {
 	}
 
 	fetchInfo(start, type, value) {
+		let requestId = Array.isArray(value) ? value[1] : value;
+		if (start === 0) {
+			this.callbacks.set(requestId, {
+				pendingClusters: this.clusters.size,
+				timeout: setTimeout(() => {
+					if (this.callbacks.has(requestId)) {
+						let callback = this.callbacks.get(requestId);
+						let targetCluster = this.clusters.get(callback.cluster);
+						if (targetCluster && master.workers[targetCluster.workerID]) {
+							master.workers[targetCluster.workerID].send({
+								name: 'fetchReturn',
+								id: requestId,
+								value: null
+							});
+						}
+						this.callbacks.delete(requestId);
+					}
+				}, 10000),
+				cluster: start
+			});
+		}
+	
 		let cluster = this.clusters.get(start);
 		if (cluster) {
 			master.workers[cluster.workerID].send({ name: type, value: value });
 			this.fetchInfo(start + 1, type, value);
+		}
+	}
+	
+	fetchReturn(UUID, value) {
+		if (this.callbacks.has(UUID)) {
+			let callback = this.callbacks.get(UUID);
+			if (value) {
+				clearTimeout(callback.timeout);
+				this.callbacks.delete(UUID);
+				let targetCluster = this.clusters.get(callback.cluster);
+				if (targetCluster && master.workers[targetCluster.workerID]) {
+					master.workers[targetCluster.workerID].send({
+						name: 'fetchReturn',
+						id: UUID,
+						value: value
+					});
+				}
+			} else {
+				callback.pendingClusters--;
+				if (callback.pendingClusters <= 0) {
+					clearTimeout(callback.timeout);
+					this.callbacks.delete(UUID);
+					let targetCluster = this.clusters.get(callback.cluster);
+					if (targetCluster && master.workers[targetCluster.workerID]) {
+						master.workers[targetCluster.workerID].send({
+							name: 'fetchReturn',
+							id: UUID,
+							value: null
+						});
+					}
+				}
+			}
 		}
 	}
 
