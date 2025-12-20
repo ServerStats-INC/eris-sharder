@@ -34,13 +34,15 @@ class SyncedRequestHandler {
             this.ipc.register(`apiResponse.${requestID}`, data => {
                 try {
                     if (data.err) {
-                        let error = new Error(data.err.message);
-                        error.stack = data.err.stack + '\n' + stackCapture.substring(stackCapture.indexOf('\n') + 1);
-                        error.code = data.err.code;
+                        let error = new Error(data.err.message || 'API request failed');
+                        error.stack = (data.err.stack || '') + '\n' + stackCapture.substring(stackCapture.indexOf('\n') + 1);
+                        error.code = data.err.code || 0;
                         reject(error);
                     } else {
                         resolve(data.data);
                     }
+                } catch (err) {
+                    reject(new Error(`Response handler error: ${err.message}`));
                 } finally {
                     cleanup();
                 }
