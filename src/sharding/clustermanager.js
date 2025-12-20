@@ -289,8 +289,7 @@ class ClusterManager extends EventEmitter {
 					case 'apiRequest':
 						let response;
 						let error;
-
-						let { method, url, auth, body, file, _route, short } = message;
+						let { method, url, auth, body, file, _route, short, requestID } = message;
 
 						if (file && file.file) file.file = Buffer.from(file.file, 'base64');
 
@@ -306,18 +305,20 @@ class ClusterManager extends EventEmitter {
 							);
 						} catch (err) {
 							error = {
-								code: err.code,
-								message: err.message,
-								stack: err.stack
+								code: err.code || 0,
+								message: err.message || 'Unknown error',
+								stack: err.stack || new Error().stack
 							};
 						}
 
-						if (error) {
-							this.sendTo(clusterID, { _eventName: `apiResponse.${message.requestID}`, err: error });
-						} else {
-							this.sendTo(clusterID, { _eventName: `apiResponse.${message.requestID}`, data: response });
+						const targetCluster = this.clusters.get(clusterID);
+						if (targetCluster && master.workers[targetCluster.workerID]) {
+							if (error) {
+								this.sendTo(clusterID, { _eventName: `apiResponse.${requestID}`, err: error });
+							} else {
+								this.sendTo(clusterID, { _eventName: `apiResponse.${requestID}`, data: response });
+							}
 						}
-
 						break;
 				}
 			}
