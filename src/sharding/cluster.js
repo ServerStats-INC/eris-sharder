@@ -181,6 +181,8 @@ class Cluster {
 
         const bot = new Eris(token, options);
         this.bot = bot;
+        
+        if (!this.bot.stats) this.bot.stats = {};
 
         this.bot.requestHandler = new SyncedRequestHandler(this.ipc, {
             timeout: this.bot.options.requestTimeout
